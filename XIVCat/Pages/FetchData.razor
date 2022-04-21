@@ -1,0 +1,52 @@
+﻿@page "/fetchdata"
+
+<PageTitle>XIVCat Data</PageTitle>
+
+@using Lumina
+@using Lumina.Excel.GeneratedSheets
+@inject GameData GameDataService
+
+<h1>XIVCat</h1>
+
+<p>This component demonstrates fetching data from a service.</p>
+
+@if (items == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <colgroup>
+            <col span="1" style="width: 10%;"/>
+            <col span="1" style="width: 30%;"/>
+            <col span="1" style="width: 60%;"/>
+        </colgroup>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Item Level</th>
+        </tr>
+        </thead>
+        <tbody>
+        <Virtualize Items="@items" Context="item">
+            <tr>
+                <td>@item.RowId</td>
+                <td>@item.Name</td>
+                <td>@item.LevelItem.Row</td>
+            </tr>
+        </Virtualize>
+        </tbody>
+    </table>
+}
+
+@code {
+    private ICollection<Item>? items;
+
+    protected override void OnInitialized()
+    {
+        items = GameDataService.GetExcelSheet<Item>()?
+            .OrderByDescending(item => item.LevelItem.Row).ToList();
+    }
+}
