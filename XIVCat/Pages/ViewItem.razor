@@ -6,13 +6,16 @@
 
 <img src="@Util.GetIconUrl(item?.Icon ?? 0)" width="120" height="120" alt=""/>
 
-<h1>@item?.Name</h1>
-<span>@item?.Description</span>
+<h1>@item?.Name.ToString()</h1>
+<span>@item?.Description.ToString()</span>
 
 <h2>Sources</h2>
 
 <h3>Crafting</h3>
 <RecipeTable Recipes="@recipesFrom"></RecipeTable>
+
+<h3>Gathering</h3>
+<GatheringTable GatheringPoints="@gatheringPoints"></GatheringTable>
 
 <h2>Used In</h2>
 <RecipeTable Recipes="@recipesIn"></RecipeTable>
@@ -21,22 +24,39 @@
     private Item? item;
 
     private IList<Recipe>? recipesIn;
-
     private IList<Recipe>? recipesFrom;
+
+    private IList<GatheringPoint>? gatheringPoints;
 
     [Parameter]
     public string? ItemId { get; set; }
 
     protected override void OnInitialized()
     {
-        item = GameDataService.GetExcelSheet<Item>()?.GetRow(Convert.ToUInt32(ItemId));
+        var itemId = Convert.ToUInt32(ItemId);
+
+        item = GameDataService.GetExcelSheet<Item>()?.GetRow(itemId);
+
         recipesIn = GameDataService.GetExcelSheet<Recipe>()?
-            .Where(r => r.UnkData5.Any(i => i.ItemIngredient == item?.RowId))
+            .Where(r => r.UnkData5.Any(i => i.ItemIngredient == itemId))
             .OrderBy(r => r.ItemResult.Value?.LevelItem.Row)
             .ToList();
         recipesFrom = GameDataService.GetExcelSheet<Recipe>()?
-            .Where(r => r.ItemResult.Row == item?.RowId)
+            .Where(r => r.ItemResult.Row == itemId)
             .OrderBy(r => r.ItemResult.Value?.LevelItem.Row)
+            .ToList();
+
+        gatheringPoints = GameDataService.GetExcelSheet<GatheringPoint>()?
+            .Where(gp =>
+            {
+                var gpItem = GameDataService.GetExcelSheet<GatheringItem>()?.FirstOrDefault(gi => gi.Item == itemId);
+                if (gpItem == null)
+                {
+                    return false;
+                }
+
+                return gp.GatheringPointBase.Value?.Item.Contains((int)gpItem.RowId) ?? false;
+            })
             .ToList();
     }
 }

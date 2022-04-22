@@ -27,20 +27,24 @@ else
         @foreach (var recipe in Recipes)
         {
             var result = recipe.ItemResult.Value;
+            if (result == null) continue;
+
             <tr>
-                <td><img src="@Util.GetIconUrl(result?.Icon ?? 0)" alt="" width="50" height="50"/></td>
-                <td>@result?.RowId</td>
-                <td><NavLink href="@Util.GetItemPageUrl(result?.RowId ?? 0)">@result?.Name</NavLink></td>
+                <td><img src="@Util.GetIconUrl(result.Icon)" alt="" width="50" height="50"/></td>
+                <td>@result.RowId</td>
+                <td><NavLink href="@Util.GetItemPageUrl(result.RowId)">@result.Name</NavLink></td>
                 <td></td>
             </tr>
 
             foreach (var ingredient in recipe.UnkData5.Where(i => i.ItemIngredient > 0))
             {
                 var ingredientItem = GameDataService.GetExcelSheet<Item>()?.GetRow((uint)ingredient.ItemIngredient);
+                if (ingredientItem == null) continue;
+
                 <tr>
-                    <td><img src="@Util.GetIconUrl(ingredientItem?.Icon ?? 0)" alt="" width="24" height="24" align="right"/></td>
-                    <td>@ingredientItem?.RowId</td>
-                    <td><NavLink href="@Util.GetItemPageUrl(ingredientItem?.RowId ?? 0)">@ingredientItem?.Name</NavLink></td>
+                    <td><img src="@Util.GetIconUrl(ingredientItem.Icon)" alt="" width="24" height="24" align="right"/></td>
+                    <td>@ingredientItem.RowId</td>
+                    <td><NavLink href="@Util.GetItemPageUrl(ingredientItem.RowId)">@ingredientItem.Name</NavLink></td>
                     <td>@ingredient.AmountIngredient</td>
                 </tr>
             }

@@ -1,0 +1,66 @@
+﻿@using Lumina
+@using Lumina.Excel.GeneratedSheets
+@inject GameData GameDataService
+@inject NavigationManager NavigationManager;
+
+@if (GatheringPoints == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <colgroup>
+            <col span="1" style="width: 15%"/>
+            <col span="1" style="width: 85%;"/>
+        </colgroup>
+        <thead>
+        <tr>
+            <th>Location</th>
+            <th>Drops</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var gp in GatheringPoints)
+        {
+            var giIds = gp.GatheringPointBase.Value?.Item ?? Array.Empty<int>();
+            var placeName = gp.PlaceName.Value?.Name.ToString();
+            if (string.IsNullOrEmpty(placeName))
+            {
+                placeName = "(Unknown)";
+            }
+
+            <tr>
+                <td>@placeName (Lv. @gp.GatheringPointBase.Value?.GatheringLevel)</td>
+                <td>
+                    <ul>
+                    @foreach (var giId in giIds)
+                    {
+                        var gi = GameDataService.GetExcelSheet<GatheringItem>()?.GetRow((uint)giId);
+                        var item = GameDataService.GetExcelSheet<Item>()?.GetRow((uint?)gi?.Item ?? 0);
+                        if (item is not { RowId: > 0 }) continue;
+
+                        var itemUrl = Util.GetItemPageUrl(item.RowId);
+
+                        <li style="list-style: none;">
+                            <img src="@Util.GetIconUrl(item.Icon)" width="20" height="20" alt=""/>
+                            <NavLink href="@itemUrl" @onclick="() => NavigateTo(itemUrl)">@item.Name</NavLink>
+                        </li>
+                    }
+                    </ul>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public IList<GatheringPoint>? GatheringPoints { get; set; }
+
+    private void NavigateTo(string href)
+    {
+        NavigationManager.NavigateTo(href, true);
+    }
+}
