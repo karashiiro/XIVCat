@@ -6,7 +6,7 @@
 
 <h1>Items</h1>
 
-<p>This component demonstrates fetching data from a service.</p>
+<input type="search" @oninput="OnSearchInput"/>
 
 <table class="table">
     <colgroup>
@@ -24,7 +24,7 @@
     </tr>
     </thead>
     <tbody>
-    <Virtualize ItemsProvider="@GetItemsProvider" OverscanCount="12">
+    <Virtualize ItemsProvider="GetItemsProvider" OverscanCount="12" @ref="virtualizeItems">
         <ItemContent Context="item">
             <tr>
                 <td><img src="@Util.GetIconUrl(item.Icon)" alt="" width="50" height="50"/></td>
@@ -42,11 +42,52 @@
 
 
 @code {
+    private string searchText = "";
+
+    private Virtualize<Item>? virtualizeItems;
+
     private ValueTask<ItemsProviderResult<Item>> GetItemsProvider(ItemsProviderRequest req)
     {
-        var items = GameDataService.GetExcelSheet<Item>()!;
-        var itemsNext = items.OrderByDescending(item => item.LevelItem.Row).Skip(req.StartIndex).Take(req.Count);
-        var res = new ItemsProviderResult<Item>(itemsNext, (int)items.RowCount);
-        return ValueTask.FromResult(res);
+        if (string.IsNullOrEmpty(searchText))
+        {
+            var items = GameDataService.GetExcelSheet<Item>()!;
+            var itemsNext = items
+                .OrderByDescending(item => item.LevelItem.Row)
+                .Skip(req.StartIndex)
+                .Take(req.Count);
+            var res = new ItemsProviderResult<Item>(itemsNext, (int)items.RowCount);
+            return ValueTask.FromResult(res);
+        }
+        else
+        {
+            var items = GameDataService.GetExcelSheet<Item>()!
+                .Where(item =>
+                {
+                    var name = ((string)item.Name).ToLowerInvariant();
+                    var term = searchText.ToLowerInvariant();
+                    return term.Contains(' ')
+                        ? name.Contains(term)
+                        : name.Split(' ').Any(word => word.StartsWith(term) || word.EndsWith(term));
+                })
+                .ToList();
+            var itemsNext = items
+                .OrderByDescending(item => item.LevelItem.Row)
+                .Skip(req.StartIndex)
+                .Take(req.Count);
+            var res = new ItemsProviderResult<Item>(itemsNext, items.Count);
+            return ValueTask.FromResult(res);
+        }
     }
+
+    private async Task OnSearchInput(ChangeEventArgs e)
+    {
+        if (virtualizeItems == null)
+        {
+            return;
+        }
+
+        searchText = (string?)e.Value ?? "";
+        await virtualizeItems.RefreshDataAsync();
+    }
+
 }
