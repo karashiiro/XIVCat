@@ -4,7 +4,7 @@
 @using Lumina.Excel.GeneratedSheets
 @inject GameData GameDataService
 
-<img src="@Util.GetIconUrl(item?.RowId ?? 0)" width="120" height="120" alt=""/>
+<img src="@Util.GetIconUrl(item?.Icon ?? 0)" width="120" height="120" alt=""/>
 
 <h1>@item?.Name</h1>
 <span>@item?.Description</span>
