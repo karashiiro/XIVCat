@@ -30,7 +30,7 @@ else
             if (result == null) continue;
 
             <tr>
-                <td><img src="@Util.GetIconUrl(result.Icon)" alt="" width="50" height="50"/></td>
+                <td><img src="@Util.GetIconUrl(result.Icon)" alt="" width="50" height="50" align="right"/></td>
                 <td>@result.RowId</td>
                 <td><NavLink href="@Util.GetItemPageUrl(result.RowId)">@result.Name</NavLink></td>
                 <td></td>
