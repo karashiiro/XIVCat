@@ -1,9 +1,49 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
+@using Lumina
+@using Lumina.Excel.GeneratedSheets
+@inject GameData GameDataService
 
-<h1>Hello, world!</h1>
+<h1>Items</h1>
 
-Welcome to your new app.
+<p>This component demonstrates fetching data from a service.</p>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<table class="table">
+    <colgroup>
+        <col span="1" style="width: 10%;"/>
+        <col span="1" style="width: 30%;"/>
+        <col span="1" style="width: 60%;"/>
+    </colgroup>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Item Level</th>
+    </tr>
+    </thead>
+    <tbody>
+    <Virtualize ItemsProvider="@GetItemsProvider" OverscanCount="12">
+        <ItemContent Context="item">
+            <tr>
+                <td>@item.RowId</td>
+                <td>@item.Name</td>
+                <td>@item.LevelItem.Row</td>
+            </tr>
+        </ItemContent>
+        <Placeholder>
+            <p><em>Loading items...</em></p>
+        </Placeholder>
+    </Virtualize>
+    </tbody>
+</table>
+
+
+@code {
+    private ValueTask<ItemsProviderResult<Item>> GetItemsProvider(ItemsProviderRequest req)
+    {
+        var items = GameDataService.GetExcelSheet<Item>()!;
+        var itemsNext = items.OrderByDescending(item => item.LevelItem.Row).Skip(req.StartIndex).Take(req.Count);
+        var res = new ItemsProviderResult<Item>(itemsNext, (int)items.RowCount);
+        return ValueTask.FromResult(res);
+    }
+}
