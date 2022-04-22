@@ -29,7 +29,7 @@
             <tr>
                 <td><img src="@Util.GetIconUrl(item.Icon)" alt="" width="50" height="50"/></td>
                 <td>@item.RowId</td>
-                <td><NavLink href="@GetItemPageUrl(item.RowId)">@item.Name</NavLink></td>
+                <td><NavLink href="@Util.GetItemPageUrl(item.RowId)">@item.Name</NavLink></td>
                 <td>@item.LevelItem.Row</td>
             </tr>
         </ItemContent>
@@ -48,10 +48,5 @@
         var itemsNext = items.OrderByDescending(item => item.LevelItem.Row).Skip(req.StartIndex).Take(req.Count);
         var res = new ItemsProviderResult<Item>(itemsNext, (int)items.RowCount);
         return ValueTask.FromResult(res);
-    }
-
-    private static string GetItemPageUrl(uint itemId)
-    {
-        return $"item/{itemId}";
     }
 }
