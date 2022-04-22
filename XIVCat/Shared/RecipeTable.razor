@@ -12,7 +12,8 @@ else
         <colgroup>
             <col span="1" style="width: 5%"/>
             <col span="1" style="width: 10%;"/>
-            <col span="1" style="width: 30%;"/>
+            <col span="1" style="width: 20%;"/>
+            <col span="1" style="width: 10%;"/>
             <col span="1" style="width: 55%;"/>
         </colgroup>
         <thead>
@@ -20,6 +21,7 @@ else
             <th></th>
             <th>ID</th>
             <th>Name</th>
+            <th>Action</th>
             <th>Amount Required</th>
         </tr>
         </thead>
@@ -33,6 +35,7 @@ else
                 <td><img src="@Util.GetIconUrl(result.Icon)" alt="" width="50" height="50" align="right"/></td>
                 <td>@result.RowId</td>
                 <td><NavLink href="@Util.GetItemPageUrl(result.RowId)">@result.Name</NavLink></td>
+                <td>@recipe.CraftType.Value?.Name</td>
                 <td></td>
             </tr>
 
@@ -45,6 +48,7 @@ else
                     <td><img src="@Util.GetIconUrl(ingredientItem.Icon)" alt="" width="24" height="24" align="right"/></td>
                     <td>@ingredientItem.RowId</td>
                     <td><NavLink href="@Util.GetItemPageUrl(ingredientItem.RowId)">@ingredientItem.Name</NavLink></td>
+                    <td></td>
                     <td>@ingredient.AmountIngredient</td>
                 </tr>
             }
