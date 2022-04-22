@@ -27,9 +27,9 @@
     <Virtualize ItemsProvider="@GetItemsProvider" OverscanCount="12">
         <ItemContent Context="item">
             <tr>
-                <td><img src="@GetIconUrl(item.Icon)" alt="" width="50" height="50"/></td>
+                <td><img src="@Util.GetIconUrl(item.Icon)" alt="" width="50" height="50"/></td>
                 <td>@item.RowId</td>
-                <td>@item.Name</td>
+                <td><NavLink href="@GetItemPageUrl(item.RowId)">@item.Name</NavLink></td>
                 <td>@item.LevelItem.Row</td>
             </tr>
         </ItemContent>
@@ -50,9 +50,8 @@
         return ValueTask.FromResult(res);
     }
 
-    private static string GetIconUrl(uint iconId)
+    private static string GetItemPageUrl(uint itemId)
     {
-        var folder = (Math.Floor(iconId / 1000d) * 1000).ToString("000000");
-        return $"https://xivapi.com/i/{folder}/{iconId:000000}.png";
+        return $"item/{itemId}";
     }
 }
