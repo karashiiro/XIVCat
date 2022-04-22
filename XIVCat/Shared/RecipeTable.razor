@@ -1,0 +1,55 @@
+﻿@using Lumina
+@using Lumina.Excel.GeneratedSheets
+@inject GameData GameDataService
+
+@if (Recipes == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <colgroup>
+            <col span="1" style="width: 10%;"/>
+            <col span="1" style="width: 10%;"/>
+            <col span="1" style="width: 30%;"/>
+            <col span="1" style="width: 50%;"/>
+        </colgroup>
+        <thead>
+        <tr>
+            <th>Icon</th>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Amount Required</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var recipe in Recipes)
+        {
+            var result = recipe.ItemResult.Value;
+            <tr>
+                <td><img src="@Util.GetIconUrl(result?.Icon ?? 0)" alt="" width="50" height="50"/></td>
+                <td>@result?.RowId</td>
+                <td><NavLink href="@Util.GetItemPageUrl(result?.RowId ?? 0)">@result?.Name</NavLink></td>
+                <td></td>
+            </tr>
+
+            foreach (var ingredient in recipe.UnkData5.Where(i => i.ItemIngredient > 0))
+            {
+                var ingredientItem = GameDataService.GetExcelSheet<Item>()?.GetRow((uint)ingredient.ItemIngredient);
+                <tr>
+                    <td><img src="@Util.GetIconUrl(ingredientItem?.Icon ?? 0)" alt="" width="24" height="24" align="right"/></td>
+                    <td>@ingredientItem?.RowId</td>
+                    <td><NavLink href="@Util.GetItemPageUrl(ingredientItem?.RowId ?? 0)">@ingredientItem?.Name</NavLink></td>
+                    <td>@ingredient.AmountIngredient</td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public IEnumerable<Recipe>? Recipes { get; set; }
+}
